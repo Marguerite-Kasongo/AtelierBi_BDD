@@ -1,33 +1,35 @@
-import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 public class Bibliotheque {
     private HashMap<Integer, Livre> livres;
+    private Fonctionnement_Bibliotheque fonctionnement_bibliotheque;
 
     public Bibliotheque() {
         this.livres = new HashMap<>();
+        this.fonctionnement_bibliotheque = new Fonctionnement_Bibliotheque(this);
     }
 
     // 1. Ajouter un livre
     public void ajouter_Livre(Livre livre) {
-        livres.put(livre.getId_livre(), livre);
+        this.livres.put(livre.getId_livre(), livre);
     }
 
     // 2. Supprimer un livre
     public void supprimer_Livre(int id_livre) {
-        livres.remove(id_livre);
+        this.livres.remove(id_livre);
     }
 
     // 3. Modifier un livre
     public void modifier_Livre(int id_livre, Livre nouveau_livre) {
-        livres.put(id_livre, nouveau_livre);
+        this.livres.put(id_livre, nouveau_livre);
     }
 
     // 4. Rechercher un livre par son titre ou son nom
     public Livre rechercher_Selon_Titre(String titre) {
-        for (Livre livre : livres.values()) {
+        for (Livre livre : this.livres.values()) {
             if (livre.getTitre_livre().equalsIgnoreCase(titre)) {
                 return livre;
             }
@@ -36,61 +38,47 @@ public class Bibliotheque {
     }
 
     // 5. Lister les livres par ordre alphabétique de a à z
-    public List<Livre> arranger_selon_PremierLettre(char premeir_lettre) {
+    public List<Livre> arranger_selon_PremierLettre(char premierLettre) {
         List<Livre> resultat_recherche = new ArrayList<>();
-        for (Livre livre : livres.values()) {
-            if (Character.toUpperCase(livre.getTitre_livre().charAt(0)) == Character.toUpperCase(premeir_lettre)) {
+        for (Livre livre : this.livres.values()) {
+            if (livre.getTitre_livre().toLowerCase().startsWith(String.valueOf(premierLettre))) {
                 resultat_recherche.add(livre);
             }
         }
         return resultat_recherche;
     }
 
-    // 6. Avoir le nombre de livres
     public int getNombre_Livres() {
-        return livres.size();
+        return this.livres.size();
     }
 
-    // 7. Afficher les livres par leur catégorie
-    public List<Livre> getAfficher_Par_Categorie(String categorieLivre) {
-        List<Livre> resultat_Affichage = new ArrayList<>();
-        for (Livre livre : livres.values()) {
-            if (livre.getCategorie_livre().equalsIgnoreCase(categorieLivre)) {
-                resultat_Affichage.add(livre);
+    public List<Livre> getAfficher_Par_Categorie(String categorie) {
+        List<Livre> livres_Categorie = new ArrayList<>();
+        for (Livre livre : this.livres.values()) {
+            if (livre.getCategorie_livre().equalsIgnoreCase(categorie)) {
+                livres_Categorie.add(livre);
             }
         }
-        return resultat_Affichage;
+        return livres_Categorie;
     }
 
-    // 8. Afficher les détails d'un livre par son identifiant
-    public Livre getAfficher_par_identifiant(int identifiantLivre) {
-        Livre livre = livres.get(identifiantLivre);
-        if (livre == null) {
-            throw new IllegalArgumentException("Livre introuvable avec l'identifiant : " + identifiantLivre);
-        }
-        return livre;
+    public Livre getAfficher_par_identifiant(int id) {
+        return this.livres.get(id);
     }
 
-    // 9.a. Trier les livres par leur titre ou par leur nom
     public List<Livre> getTrier_Par_Titre() {
-        List<Livre> Tries_livres = new ArrayList<>(livres.values());
-        Tries_livres.sort(Comparator.comparing(Livre::getTitre_livre));
-        return Tries_livres;
+        List<Livre> livres_Trie = new ArrayList<>(this.livres.values());
+        livres_Trie.sort(Comparator.comparing(Livre::getTitre_livre));
+        return livres_Trie;
     }
 
-    // 9.b. Afficher les livres les plus populaires de la bibliothèque
-    public List<Livre> getAfficher_livre_plus_populaires(int populaire) {
-        List<Livre> Tries_livres = new ArrayList<>(livres.values());
-        Tries_livres.sort(Comparator.comparing(Livre::getScorePopularite).reversed());
-        return Tries_livres.subList(0, Math.min(populaire, Tries_livres.size()));
+    public List<Livre> getAfficher_livre_plus_populaires(int nb_livres) {
+        List<Livre> livres_Populaires = new ArrayList<>(this.livres.values());
+        livres_Populaires.sort(Comparator.comparing(Livre::getScorePopularite).reversed());
+        return livres_Populaires.subList(0, Math.min(nb_livres, livres_Populaires.size()));
     }
 
-    public void ajouterLivre(Livre livre) {
-        livres.put(livre.getId_livre(), livre);
-    }
-
-    public void sauvegarderDonnees() {
-        SauvegarderDonnees.sauvegarderDonnees(livres);
+    public HashMap<Integer,Livre> getLivre() {
+        return null;
     }
 }
-

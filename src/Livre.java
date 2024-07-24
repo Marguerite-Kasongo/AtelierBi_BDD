@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Livre {
     private int id_livre;
     private String titre_livre;
@@ -10,7 +12,7 @@ public class Livre {
         this.titre_livre = titre_livre;
         this.auteur_livre = auteur_livre;
         this.categorie_livre = categorie_livre;
-        this.scorePopularite = 0; // Initialisation du score de popularité à 0
+        this.scorePopularite = 0;
     }
 
     public int getId_livre() {
@@ -33,23 +35,20 @@ public class Livre {
         return scorePopularite;
     }
 
-    public void setId_livre(int id_livre) {
-        this.id_livre = id_livre;
+    public void setScorePopularite(int scorePopularite) {
+        this.scorePopularite = scorePopularite;
     }
 
-    public void setTitre_livre(String titre_livre) {
-        this.titre_livre = titre_livre;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Livre livre = (Livre) o;
+        return id_livre == livre.id_livre && scorePopularite == livre.scorePopularite && Objects.equals(titre_livre, livre.titre_livre) && Objects.equals(auteur_livre, livre.auteur_livre) && Objects.equals(categorie_livre, livre.categorie_livre);
     }
 
-    public void setAuteur_livre(String auteur_livre) {
-        this.auteur_livre = auteur_livre;
-    }
-
-    public void setCategorie_livre(String categorie_livre) {
-        this.categorie_livre = categorie_livre;
-    }
-
-    public void incrementerScorePopularite() {
-        this.scorePopularite++;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id_livre, titre_livre, auteur_livre, categorie_livre, scorePopularite);
     }
 }
