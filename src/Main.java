@@ -1,98 +1,235 @@
-import java.sql.*;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Scanner;
 
-public class Main {
-    // Déclarations précédentes inchangées
+public class Main extends Application {
 
-    public static void main(String[] args) throws SQLException {
-        Bibliotheque Tech_library = new Bibliotheque();
-        Scanner scanner = new Scanner(System.in);
+    private Bibliotheque techLibrary = new Bibliotheque();
 
-        while (true) {
-            System.out.println("\nChoix des fonctionnalités :");
-            System.out.println("1. Ajouter un livre");
-            System.out.println("2. Supprimer un livre");
-            System.out.println("3. Sauvegarder les données dans la base de données");
-            System.out.println("4. Lister les livres par ordre alphabétique");
-            System.out.println("5. Avoir le nombre de livres");
-            System.out.println("6. Afficher les livres par catégorie");
-            System.out.println("7. Afficher les détails d'un livre");
-            System.out.println("8. Trier les livres par titre");
-            System.out.println("9. Afficher les livres les plus populaires");
-            System.out.println("0. Quitter");
-            System.out.print("\nEntrez votre choix (0-9) : ");
-            int choix = scanner.nextInt();
-            scanner.nextLine(); // Consommer le saut de ligne
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Bibliothèque");
 
-            switch (choix) {
-                case 1:
-                    // 1. Ajouter un nouveau livre
-                    System.out.print("Entrez l'ID du nouveau livre : ");
-                    int nouveauId = scanner.nextInt();
-                    scanner.nextLine(); // Consommer le saut de ligne
-                    System.out.print("Entrez le titre du nouveau livre : ");
-                    String nouveauTitre = scanner.nextLine();
-                    System.out.print("Entrez l'auteur du nouveau livre : ");
-                    String nouveauAuteur = scanner.nextLine();
-                    System.out.print("Entrez la catégorie du nouveau livre : ");
-                    String nouvelleCategorie = scanner.nextLine();
-                    Tech_library.ajouter_Livre(new Livre(nouveauId, nouveauTitre, nouveauAuteur, nouvelleCategorie));
-                    BDD_Bibliotheque.insererLivreBase(new Livre(nouveauId, nouveauTitre, nouveauAuteur, nouvelleCategorie));
-                    break;
+        VBox vbox = new VBox();
+        vbox.setSpacing(10);
 
-                case 2:
-                    // 2. Supprimer un livre
-                    System.out.print("Entrez l'ID du livre à supprimer : ");
-                    int idLivreASupprimer = scanner.nextInt();
-                    scanner.nextLine(); // Consommer le saut de ligne
-                    Tech_library.supprimer_Livre(idLivreASupprimer);
-                    BDD_Bibliotheque.supprimerLivreBase(idLivreASupprimer);
-                    break;
+        // Ajouter des boutons pour chaque fonctionnalité
+        Button addButton = new Button("Ajouter un livre");
+        Button deleteButton = new Button("Supprimer un livre");
+        Button saveButton = new Button("Sauvegarder les données");
+        Button listButton = new Button("Lister les livres");
+        Button countButton = new Button("Nombre de livres");
+        Button categoryButton = new Button("Afficher par catégorie");
+        Button detailsButton = new Button("Afficher les détails");
+        Button sortButton = new Button("Trier les livres");
+        Button popularButton = new Button("Livres populaires");
+        Button exitButton = new Button("Quitter");
 
-                case 7:
-                    // 7. Afficher les détails d'un livre
-                    System.out.print("Entrez l'ID du livre à afficher : ");
-                    int idLivreAfficher = scanner.nextInt();
-                    scanner.nextLine(); // Consommer le saut de ligne
-                    Livre livre = BDD_Bibliotheque.rechercherLivreBase(idLivreAfficher);
-                    if (livre != null) {
-                        System.out.println("Détails du livre avec l'ID " + idLivreAfficher + ":");
-                        System.out.println("Titre : " + livre.getTitre_livre());
-                        System.out.println("Auteur : " + livre.getAuteur_livre());
-                        System.out.println("Catégorie : " + livre.getCategorie_livre());
-                    } else {
-                        System.out.println("Livre non trouvé dans la base de données.");
-                    }
-                    break;
-                case 8:
-                    // 8. Trier les livres par titre
-                    List<Livre> livresTries = Tech_library.getTrier_Par_Titre();
-                    System.out.println("Livres triés par titre :");
-                    for (Livre l : livresTries) {
-                        System.out.println(l.getTitre_livre());
-                    }
-                    break;
+        addButton.setOnAction(e -> showAddBookDialog());
+        deleteButton.setOnAction(e -> showDeleteBookDialog());
+        saveButton.setOnAction(e -> saveData());
+        listButton.setOnAction(e -> listBooks());
+        countButton.setOnAction(e -> countBooks());
+        categoryButton.setOnAction(e -> showBooksByCategoryDialog());
+        detailsButton.setOnAction(e -> showBookDetailsDialog());
+        sortButton.setOnAction(e -> sortBooks());
+        popularButton.setOnAction(e -> showPopularBooks());
+        exitButton.setOnAction(e -> primaryStage.close());
 
-                case 9:
-                    // 9. Afficher les livres les plus populaires
-                    int nombreLivresPopulaires = 5;
-                    List<Livre> livresPopulaires = Tech_library.getAfficher_livre_plus_populaires(nombreLivresPopulaires);
-                    System.out.println("Livres les plus populaires :");
-                    for (Livre l : livresPopulaires) {
-                        System.out.println(l.getTitre_livre());
-                    }
-                    break;
+        vbox.getChildren().addAll(addButton, deleteButton, saveButton, listButton, countButton, categoryButton, detailsButton, sortButton, popularButton, exitButton);
 
-                case 0:
-                    System.out.println("Au revoir !");
-                    return;
+        Scene scene = new Scene(vbox, 400, 600);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
 
+    private void showAddBookDialog() {
+        Stage dialog = new Stage();
+        dialog.setTitle("Ajouter un livre");
 
-                default:
-                    System.out.println("Choix invalide. Veuillez réessayer.");
-                    break;
+        VBox vbox = new VBox();
+        vbox.setSpacing(10);
+        Scene scene = new Scene(vbox, 300, 250);
+
+        TextField idField = new TextField();
+        idField.setPromptText("ID du livre");
+        TextField titleField = new TextField();
+        titleField.setPromptText("Titre du livre");
+        TextField authorField = new TextField();
+        authorField.setPromptText("Auteur du livre");
+        TextField categoryField = new TextField();
+        categoryField.setPromptText("Catégorie du livre");
+
+        Button submitButton = new Button("Ajouter");
+        submitButton.setOnAction(e -> {
+            try {
+                int id = Integer.parseInt(idField.getText());
+                String title = titleField.getText();
+                String author = authorField.getText();
+                String category = categoryField.getText();
+                Livre newBook = new Livre(id, title, author, category);
+                techLibrary.ajouter_Livre(newBook);
+                BDD_Bibliotheque.insererLivreBase(newBook);
+                dialog.close();
+            } catch (NumberFormatException | SQLException ex) {
+                ex.printStackTrace();
+                showAlert("Erreur", "Veuillez entrer des informations valides.");
             }
+        });
+
+        vbox.getChildren().addAll(idField, titleField, authorField, categoryField, submitButton);
+        dialog.setScene(scene);
+        dialog.show();
+    }
+
+    private void showDeleteBookDialog() {
+        Stage dialog = new Stage();
+        dialog.setTitle("Supprimer un livre");
+
+        VBox vbox = new VBox();
+        vbox.setSpacing(10);
+        Scene scene = new Scene(vbox, 300, 150);
+
+        TextField idField = new TextField();
+        idField.setPromptText("ID du livre à supprimer");
+
+        Button submitButton = new Button("Supprimer");
+        submitButton.setOnAction(e -> {
+            try {
+                int id = Integer.parseInt(idField.getText());
+                techLibrary.supprimer_Livre(id);
+                BDD_Bibliotheque.supprimerLivreBase(id);
+                dialog.close();
+            } catch (NumberFormatException | SQLException ex) {
+                ex.printStackTrace();
+                showAlert("Erreur", "Veuillez entrer un ID valide.");
+            }
+        });
+
+        vbox.getChildren().addAll(idField, submitButton);
+        dialog.setScene(scene);
+        dialog.show();
+    }
+
+    private void saveData() {
+        try {
+            BDD_Bibliotheque.sauvegarderDonnees(techLibrary);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            showAlert("Erreur", "Erreur lors de la sauvegarde des données.");
         }
     }
+
+    private void listBooks() {
+        List<Livre> books = (List<Livre>) techLibrary.getLivres();
+        StringBuilder sb = new StringBuilder();
+        for (Livre book : books) {
+            sb.append(book.getTitre_livre()).append("\n");
+        }
+        showAlert("Livres", sb.toString());
+    }
+
+    private void countBooks() {
+        int count = techLibrary.getLivres().size();
+        showAlert("Nombre de livres", "Il y a " + count + " livres.");
+    }
+
+    private void showBooksByCategoryDialog() {
+        Stage dialog = new Stage();
+        dialog.setTitle("Afficher les livres par catégorie");
+
+        VBox vbox = new VBox();
+        vbox.setSpacing(10);
+        Scene scene = new Scene(vbox, 300, 150);
+
+        TextField categoryField = new TextField();
+        categoryField.setPromptText("Catégorie");
+
+        Button submitButton = new Button("Afficher");
+        submitButton.setOnAction(e -> {
+            String category = categoryField.getText();
+            List<Livre> books = techLibrary.getLivresParCategorie(category);
+            StringBuilder sb = new StringBuilder();
+            for (Livre book : books) {
+                sb.append(book.getTitre_livre()).append("\n");
+            }
+            showAlert("Livres par catégorie", sb.toString());
+            dialog.close();
+        });
+
+        vbox.getChildren().addAll(categoryField, submitButton);
+        dialog.setScene(scene);
+        dialog.show();
+    }
+
+    private void showBookDetailsDialog() {
+        Stage dialog = new Stage();
+        dialog.setTitle("Afficher les détails du livre");
+
+        VBox vbox = new VBox();
+        vbox.setSpacing(10);
+        Scene scene = new Scene(vbox, 300, 150);
+
+        TextField idField = new TextField();
+        idField.setPromptText("ID du livre");
+
+        Button submitButton = new Button("Afficher");
+        submitButton.setOnAction(e -> {
+            try {
+                int id = Integer.parseInt(idField.getText());
+                Livre book = BDD_Bibliotheque.rechercherLivreBase(id);
+                if (book != null) {
+                    String details = String.format("Titre: %s\nAuteur: %s\nCatégorie: %s",
+                            book.getTitre_livre(), book.getAuteur_livre(), book.getCategorie_livre());
+                    showAlert("Détails du livre", details);
+                } else {
+                    showAlert("Erreur", "Livre non trouvé.");
+                }
+                dialog.close();
+            } catch (NumberFormatException | SQLException ex) {
+                ex.printStackTrace();
+                showAlert("Erreur", "Veuillez entrer un ID valide.");
+            }
+        });
+
+        vbox.getChildren().addAll(idField, submitButton);
+        dialog.setScene(scene);
+        dialog.show();
+    }
+
+    private void sortBooks() {
+        List<Livre> sortedBooks = techLibrary.getTrier_Par_Titre();
+        StringBuilder sb = new StringBuilder();
+        for (Livre book : sortedBooks) {
+            sb.append(book.getTitre_livre()).append("\n");
+        }
+        showAlert("Livres triés par titre", sb.toString());
+    }
+
+    private void showPopularBooks() {
+        List<Livre> popularBooks = techLibrary.getAfficher_livre_plus_populaires(5);
+        StringBuilder sb = new StringBuilder();
+        for (Livre book : popularBooks) {
+            sb.append(book.getTitre_livre()).append("\n");
+        }
+        showAlert("Livres populaires", sb.toString());
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
+

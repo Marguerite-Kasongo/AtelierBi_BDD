@@ -60,4 +60,12 @@ public class Bibliotheque {
     public HashMap<Integer,Livre> getLivre() {
         return null;
     }
+
+    public HashMap<Integer, Livre> getLivres() {
+        return null;
+    }
+
+    public List<Livre> getLivresParCategorie(String category) {
+        return null;
+    }
 }
