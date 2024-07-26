@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -6,10 +7,18 @@ import javafx.stage.Stage;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main extends Application {
+    public static void main(String[] args) {
+        launch(args);
+    }
 
-    private Bibliotheque techLibrary = new Bibliotheque();
+    private void handle(ActionEvent e) {
+        listBooks();
+    }
+
+    private final Bibliotheque techLibrary = new Bibliotheque();
 
     @Override
     public void start(Stage primaryStage) {
@@ -22,7 +31,9 @@ public class Main extends Application {
         Button addButton = new Button("Ajouter un livre");
         Button deleteButton = new Button("Supprimer un livre");
         Button saveButton = new Button("Sauvegarder les données");
+        saveButton.setOnAction(e -> saveData());
         Button listButton = new Button("Lister les livres");
+        listButton.setOnAction(e -> listBooks());
         Button countButton = new Button("Nombre de livres");
         Button categoryButton = new Button("Afficher par catégorie");
         Button detailsButton = new Button("Afficher les détails");
@@ -32,8 +43,6 @@ public class Main extends Application {
 
         addButton.setOnAction(e -> showAddBookDialog());
         deleteButton.setOnAction(e -> showDeleteBookDialog());
-        saveButton.setOnAction(e -> saveData());
-        listButton.setOnAction(e -> listBooks());
         countButton.setOnAction(e -> countBooks());
         categoryButton.setOnAction(e -> showBooksByCategoryDialog());
         detailsButton.setOnAction(e -> showBookDetailsDialog());
@@ -127,11 +136,8 @@ public class Main extends Application {
 
     private void listBooks() {
         List<Livre> books = (List<Livre>) techLibrary.getLivres();
-        StringBuilder sb = new StringBuilder();
-        for (Livre book : books) {
-            sb.append(book.getTitre_livre()).append("\n");
-        }
-        showAlert("Livres", sb.toString());
+        String sb = books.stream().map(book -> book.getTitre_livre() + "\n").collect(Collectors.joining());
+        showAlert("Livres", sb);
     }
 
     private void countBooks() {
@@ -228,8 +234,6 @@ public class Main extends Application {
         alert.showAndWait();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+
 }
 

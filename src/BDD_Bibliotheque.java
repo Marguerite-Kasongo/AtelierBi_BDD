@@ -1,14 +1,17 @@
 import java.sql.*;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
 public class BDD_Bibliotheque {
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/bibliotheque";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mysql";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "";
 
     // Sauvegarde les données de la bibliothèque dans la base de données
+    private final HashMap<String, Livre> livres = new HashMap<>();
+
     public static void sauvegarderDonnees(Bibliotheque bibliotheque) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             createTables(conn);
@@ -35,7 +38,8 @@ public class BDD_Bibliotheque {
                 "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE titre_livre = VALUES(titre_livre), auteur_livre = VALUES(auteur_livre), categorie_livre = VALUES(categorie_livre)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
-            for (Livre livre : livres.values()) {
+            for (Iterator<Livre> iterator = livres.values().iterator(); iterator.hasNext(); ) {
+                Livre livre = iterator.next();
                 pstmt.setInt(1, livre.getId_livre());
                 pstmt.setString(2, livre.getTitre_livre());
                 pstmt.setString(3, livre.getAuteur_livre());
@@ -137,3 +141,4 @@ public class BDD_Bibliotheque {
         return new ArrayList<>();
     }
 }
+
