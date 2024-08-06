@@ -12,6 +12,9 @@ public class BDD_Bibliotheque {
     // Sauvegarde les données de la bibliothèque dans la base de données
     private final HashMap<String, Livre> livres = new HashMap<>();
 
+
+    // Sauvegarde les données de la bibliothèque dans la base de données
+
     public static void sauvegarderDonnees(Bibliotheque bibliotheque) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             createTables(conn);
@@ -19,7 +22,6 @@ public class BDD_Bibliotheque {
         }
     }
 
-    // Crée les tables si elles n'existent pas déjà
     private static void createTables(Connection conn) throws SQLException {
         String createTableLivre = "CREATE TABLE IF NOT EXISTS livre (" +
                 "id_livre INT PRIMARY KEY," +
@@ -32,14 +34,12 @@ public class BDD_Bibliotheque {
         }
     }
 
-    // Insère les livres dans la base de données
     private static void insertLivres(Connection conn, HashMap<Integer, Livre> livres) throws SQLException {
         String insertQuery = "INSERT INTO livre (id_livre, titre_livre, auteur_livre, categorie_livre) " +
                 "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE titre_livre = VALUES(titre_livre), auteur_livre = VALUES(auteur_livre), categorie_livre = VALUES(categorie_livre)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
-            for (Iterator<Livre> iterator = livres.values().iterator(); iterator.hasNext(); ) {
-                Livre livre = iterator.next();
+            for (Livre livre : livres.values()) {
                 pstmt.setInt(1, livre.getId_livre());
                 pstmt.setString(2, livre.getTitre_livre());
                 pstmt.setString(3, livre.getAuteur_livre());
@@ -95,6 +95,19 @@ public class BDD_Bibliotheque {
         }
         return livre;
     }
+    public static int getNombreLivres() throws SQLException {
+        int count = 0;
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String countQuery = "SELECT COUNT(*) as total FROM Livre";
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(countQuery)) {
+                if (rs.next()) {
+                    count = rs.getInt("total");
+                }
+            }
+        }
+        return count;
+    }
 
     // Méthodes supplémentaires pour récupérer les livres par catégorie, triés par titre, etc.
     public static List<Livre> getLivresParCategorie(String categorie) throws SQLException {
@@ -140,5 +153,6 @@ public class BDD_Bibliotheque {
         // Ici, nous simulerons avec une liste vide
         return new ArrayList<>();
     }
+
 }
 

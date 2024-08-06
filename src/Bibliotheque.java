@@ -18,7 +18,7 @@ public class Bibliotheque {
         livres.removeIf(l -> l.getId_livre() == idLivre);
     }
 
-    public List<Livre> arranger_selon_PremierLettre(char premiereLetre) {
+    public List<Livre> arranger_selon_PremierLettre(char premiereLettre) {
         List<Livre> livresTriesAlpha = new ArrayList<>(livres);
         livresTriesAlpha.sort(Comparator.comparing(Livre::getTitre_livre));
         return livresTriesAlpha;
@@ -57,15 +57,28 @@ public class Bibliotheque {
         return livresPopulaires.subList(0, Math.min(nombreLivres, livresPopulaires.size()));
     }
 
-    public HashMap<Integer,Livre> getLivre() {
-        return null;
+    public Livre getLivre(int idLivre) {
+        return livres.stream()
+                .filter(l -> l.getId_livre() == idLivre)
+                .findFirst()
+                .orElse(null);
     }
 
     public HashMap<Integer, Livre> getLivres() {
-        return null;
+        HashMap<Integer, Livre> livresMap = new HashMap<>();
+        for (Livre livre : livres) {
+            livresMap.put(livre.getId_livre(), livre);
+        }
+        return livresMap;
     }
 
     public List<Livre> getLivresParCategorie(String category) {
-        return null;
+        List<Livre> livresParCategorie = new ArrayList<>();
+        for (Livre livre : livres) {
+            if (livre.getCategorie_livre().equalsIgnoreCase(category)) {
+                livresParCategorie.add(livre);
+            }
+        }
+        return livresParCategorie;
     }
 }
